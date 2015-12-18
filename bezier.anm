@@ -1,6 +1,40 @@
 --track0:開始値,-10000,10000,0,0.01
 --track1:終了値,-10000,10000,0,0.01
 --track2:時間,0,10000,0,0.01
---track3:精度,1,1000,1000,1
+--track3:精度,1,64,64,1
 
 --dialog:変数名,varname=ox;編集モード/chk,editmode=1;編集モード点数,editorquality=100;
+
+function cubicbezier_y (t,y2,y3)
+	local tp = 1-t;
+	local y = 3*t*tp^2*y2 + 3*t^2*tp*y3 + t^3;
+	return y;
+end
+
+function cubicbezier_x (t,x2,x3)
+	local tp = 1-t;
+	local x = 3*t*tp^2*x2 + 3*t^2*tp*x3 + t^3;
+	return x;
+end
+
+function cubicbezier_derivative_x (t,x2,x3)--今回必要なのはdx/dtのみ
+	local tp = 1-t;
+	local dx = 3*(t^2*(1-x3) + 2*t*tp*(x3-x2) + tp^2*x2);
+	return dx;
+end
+
+function cubicbezier_neuton(targetx,x2,x3)
+	--xに対応するtをニュートン法で求める
+	--f(x)=0の根aの近似xを知れば、xより精度の高い近似値x1は x1 = x0 - f(x0)/f'(x0) で与えられる
+	local t = 1;
+	local i;
+	for i=0,100 do --無限ループ回避
+		local x = cubicbezier_x (t,x2,x3);
+		if math.abs(targetx - x) < 1/(2^obj.track3) then
+			break;
+		end
+		local dx = cubicbezier_derivative_x (t,x2,x3);
+		t = t - (x-targetx)/dx;
+	end
+	return t;
+end
