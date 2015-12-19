@@ -1,7 +1,7 @@
 --track0:開始値,-10000,10000,0,0.01
 --track1:終了値,-10000,10000,0,0.01
 --track2:時間,0,10000,0,0.01
---track3:精度,1,64,64,1
+--track3:精度,1,32,32,1
 
 --dialog:変数名,varname=ox;編集モード/chk,editmode=1;編集モード点数,editorquality=100;エディタサイズ,editorsize=200;制御点,editpos={};
 
@@ -19,24 +19,21 @@ function cubicbezier_x (t,x2,x3)
 	return x;
 end
 
-function cubicbezier_derivative_x (t,x2,x3)--今回必要なのはdx/dtのみ
-	local tp = 1-t;
-	local dx = 3*(t^2*(1-x3) + 2*t*tp*(x3-x2) + tp^2*x2);
-	return dx;
-end
-
-function cubicbezier_neuton(targetx,x2,x3)
-	--xに対応するtをニュートン法で求める
-	--f(x)=0の根aの近似xを知れば、xより精度の高い近似値x1は x1 = x0 - f(x0)/f'(x0) で与えられる
-	local t = 1;
-	local i;
-	for i=0,100 do --無限ループ回避
-		local x = cubicbezier_x (t,x2,x3);
-		if math.abs(targetx - x) < 1/(2^obj.track3) then
-			break;
+function cubicbezier_bisection (targetx,x2,x3)
+    --xに対応するtを二分法で求める
+	local t_min = 0;
+	local t_max = 1;
+    local t;
+	for i=0,1000 do --無限ループ回避
+		t = (t_min+t_max)/2;
+		local x = cubicbezier_x(t,x2,x3);
+		if math.abs(x-targetx) < 1/(2^obj.track3) then
+			return t;
+		elseif x < targetx then
+			t_min = t;
+		else
+			t_max = t;
 		end
-		local dx = cubicbezier_derivative_x (t,x2,x3);
-		t = t - (x-targetx)/dx;
 	end
 	return t;
 end
@@ -47,7 +44,7 @@ function drawline(x0,y0,x1,y1,col)
 	obj.drawpoly(x0-obj.x,y0-obj.y,0-obj.z, x1-obj.x,y1-obj.y,0-obj.z, x1+w-obj.x,y1+w-obj.y,0-obj.z, x0+w-obj.x,y0+w-obj.y,0-obj.z);
 end
 
-function editmode(x0,y0,x1,y1)
+function editor()
 	obj.load("figure","四角形",0xffffff,1);
 	obj.draw(-obj.x,-obj.y,-obj.z,editorsize,0.5);
 	local x2 = math.min(math.max( (editpos[1]+obj.x)/editorsize+0.5 ,0),1);
@@ -67,10 +64,25 @@ function editmode(x0,y0,x1,y1)
 	drawline(-(editorsize/2),(editorsize/2),math.min(math.max(editpos[1],-editorsize/2),editorsize/2),editpos[2],0xaaaa00);
 	drawline((editorsize/2),-(editorsize/2),math.min(math.max(editpos[3],-editorsize/2),editorsize/2),editpos[4],0x00aaaa);
 	local x = obj.track2/10000;
-	local t = cubicbezier_neuton(x,x2,x3);
+	local t = cubicbezier_bisection(x,x2,x3);
 	local y = cubicbezier_y(t,y2,y3);
-	debug_print(t);
 	drawline(x*editorsize-(editorsize/2),-(editorsize/2),x*editorsize-(editorsize/2),(editorsize/2),0xff0000);
 	drawline(-(editorsize/2),-y*editorsize+(editorsize/2),(editorsize/2),-y*editorsize+(editorsize/2),0xff0000);
 end
-editmode();
+
+function animation()
+	local x2 = math.min(math.max( (editpos[1]+obj.x)/editorsize+0.5 ,0),1);
+	local x3 = math.min(math.max( (editpos[3]+obj.x)/editorsize+0.5 ,0),1);
+	local y2 = 1-((editpos[2]+obj.y)/editorsize+0.5);
+	local y3 = 1-((editpos[4]+obj.y)/editorsize+0.5);
+    local x = obj.track2/10000;
+	local t = cubicbezier_bisection(x,x2,x3);
+	local y = cubicbezier_y(t,y2,y3);
+    obj[varname] = (1-y)*obj.track0 + y*obj.track1;
+end
+
+if (editmode == 1) then
+    editor();
+else 
+    animation();
+end
