@@ -47,10 +47,10 @@ end
 function editor()
 	obj.load("figure","éläpå`",0xffffff,1);
 	obj.draw(-obj.x,-obj.y,-obj.z,editorsize,0.5);
-	local x2 = math.min(math.max( (editpos[1]+obj.x)/editorsize+0.5 ,0),1);
-	local x3 = math.min(math.max( (editpos[3]+obj.x)/editorsize+0.5 ,0),1);
-	local y2 = 1-((editpos[2]+obj.y)/editorsize+0.5);
-	local y3 = 1-((editpos[4]+obj.y)/editorsize+0.5);
+	local x2 = math.min(math.max(editpos[1]/editorsize+0.5 ,0),1);
+	local x3 = math.min(math.max(editpos[3]/editorsize+0.5 ,0),1);
+	local y2 = 1-(editpos[2]/editorsize+0.5);
+	local y3 = 1-(editpos[4]/editorsize+0.5);
 	for i=0,editorquality do
 		local r = 255 * (1-(i/editorquality));
 		local b = 255 * (i/editorquality);
@@ -71,16 +71,16 @@ function editor()
 end
 
 function animation()
-	local x2 = math.min(math.max( (editpos[1]+obj.x)/editorsize+0.5 ,0),1);
-	local x3 = math.min(math.max( (editpos[3]+obj.x)/editorsize+0.5 ,0),1);
-	local y2 = 1-((editpos[2]+obj.y)/editorsize+0.5);
-	local y3 = 1-((editpos[4]+obj.y)/editorsize+0.5);
+	local x2 = math.min(math.max(editpos[1]/editorsize+0.5 ,0),1);
+	local x3 = math.min(math.max(editpos[3]/editorsize+0.5 ,0),1);
+	local y2 = 1-(editpos[2]/editorsize+0.5);
+	local y3 = 1-(editpos[4]/editorsize+0.5);
     local x = obj.track2/10000;
 	local t = cubicbezier_bisection(x,x2,x3);
 	local y = cubicbezier_y(t,y2,y3);
     obj[varname] = (1-y)*obj.track0 + y*obj.track1;
 end
-
+debug_print(editpos[1]);
 if (editmode == 1) then
     editor();
 else 
