@@ -3,7 +3,7 @@
 --track2:時間,0,10000,0,0.01
 --track3:精度,1,32,32,1
 
---dialog:変数名,varname=ox;編集モード/chk,editmode=1;編集モード点数,editorquality=100;エディタサイズ,editorsize=200;制御点,editpos={};
+--dialog:変数名,varname="ox";編集モード/chk,editmode=1;編集モード点数,editorquality=100;エディタサイズ,editorsize=200;制御点,editpos={};
 
 obj.setanchor("editpos",2);
 
