@@ -45,8 +45,8 @@ function drawline(x0,y0,x1,y1,col)
 end
 
 function editor()
-	obj.load("figure","éläpå`",0xffffff,1);
-	obj.draw(-obj.x,-obj.y,-obj.z,editorsize,0.5);
+	obj.load("figure","éläpå`",0x7f7f7f,1);
+	obj.draw(0,0,0,editorsize,0.5);
 	local x2 = math.min(math.max(editpos[1]/editorsize+0.5 ,0),1);
 	local x3 = math.min(math.max(editpos[3]/editorsize+0.5 ,0),1);
 	local y2 = 1-(editpos[2]/editorsize+0.5);
@@ -59,15 +59,15 @@ function editor()
 		local t = i/editorquality;
 		local x = cubicbezier_x(t,x2,x3)*editorsize - (editorsize/2);
 		local y = (1-cubicbezier_y(t,y2,y3))*editorsize - (editorsize/2);
-		obj.draw(x-obj.x,y-obj.y,-obj.z);
+		obj.draw(x,y,-obj.z);
 	end
-	drawline(-(editorsize/2),(editorsize/2),math.min(math.max(editpos[1],-editorsize/2),editorsize/2),editpos[2],0xaaaa00);
-	drawline((editorsize/2),-(editorsize/2),math.min(math.max(editpos[3],-editorsize/2),editorsize/2),editpos[4],0x00aaaa);
+	drawline(-(editorsize/2)+obj.x,(editorsize/2)+obj.y,math.min(math.max(editpos[1],-editorsize/2),editorsize/2)+obj.x,editpos[2]+obj.y,0xaaaa00);
+	drawline((editorsize/2)+obj.x,-(editorsize/2)+obj.y,math.min(math.max(editpos[3],-editorsize/2),editorsize/2)+obj.x,editpos[4]+obj.y,0x00aaaa);
 	local x = obj.track2/10000;
 	local t = cubicbezier_bisection(x,x2,x3);
 	local y = cubicbezier_y(t,y2,y3);
-	drawline(x*editorsize-(editorsize/2),-(editorsize/2),x*editorsize-(editorsize/2),(editorsize/2),0xff0000);
-	drawline(-(editorsize/2),-y*editorsize+(editorsize/2),(editorsize/2),-y*editorsize+(editorsize/2),0xff0000);
+	drawline(x*editorsize-(editorsize/2)+obj.x,-(editorsize/2)+obj.y,x*editorsize-(editorsize/2)+obj.x,(editorsize/2)+obj.y,0xff0000);
+	drawline(-(editorsize/2)+obj.x,-y*editorsize+(editorsize/2)+obj.y,(editorsize/2)+obj.x,-y*editorsize+(editorsize/2)+obj.y,0xff0000);
 end
 
 function animation()
